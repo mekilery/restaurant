@@ -25,7 +25,8 @@
   "production_center_group",
   "current_user",
   "room_description",
-  "shape"
+  "shape",
+  "kitchen_name"
  ],
  "fields": [
   {
@@ -133,11 +134,17 @@
    "fieldtype": "Select",
    "label": "Shape",
    "options": "Square\nRound"
+  },
+  {
+   "fieldname": "kitchen_name",
+   "fieldtype": "Link",
+   "label": "Kitchen Name",
+   "options": "Kitchen"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2022-09-25 11:12:36.299549",
+ "modified": "2023-11-18 14:22:19.058303",
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "Restaurant Object",
@@ -183,6 +190,7 @@
  "search_fields": "description,type",
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "title_field": "description",
  "track_changes": 1
 }

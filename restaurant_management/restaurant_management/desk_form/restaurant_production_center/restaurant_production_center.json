@@ -208,6 +208,22 @@
    "read_only": 0,
    "reqd": 0,
    "show_in_filter": 0
+  },
+  {
+   "allow_read_on_all_link_options": 0,
+   "collapsible": 0,
+   "extra_field": 0,
+   "fetch_if_empty": 0,
+   "fieldname": "kitchen_name",
+   "fieldtype": "Link",
+   "hidden": 0,
+   "label": "Kitchen",
+   "max_length": 0,
+   "max_value": 0,
+   "options": "Kitchen",
+   "read_only": 0,
+   "reqd": 0,
+   "show_in_filter": 0
   }
  ],
  "doc_type": "Restaurant Object",
@@ -217,7 +233,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2023-01-07 20:51:23.121317",
+ "modified": "2023-11-19 10:12:12.843236",
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "restaurant-production-center",
