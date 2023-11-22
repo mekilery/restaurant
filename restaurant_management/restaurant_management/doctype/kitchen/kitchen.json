@@ -8,7 +8,8 @@
  "engine": "InnoDB",
  "field_order": [
   "title",
-  "state"
+  "state",
+  "printer_name"
  ],
  "fields": [
   {
@@ -24,11 +25,18 @@
    "fieldtype": "Select",
    "label": "State",
    "options": "Open\nClose"
+  },
+  {
+   "fieldname": "printer_name",
+   "fieldtype": "Link",
+   "label": "Printer Name",
+   "options": "Network Printer Settings",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-11-17 17:57:28.674374",
+ "modified": "2023-11-21 16:07:19.127548",
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "Kitchen",

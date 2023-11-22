@@ -8,6 +8,11 @@ import frappe
 from frappe import _
 from frappe.model.document import Document
 import json
+from PyPDF2 import PdfWriter
+from frappe.utils.pdf import get_pdf
+import os
+import time
+from io import BytesIO
 
 from restaurant_management.restaurant_management.page.restaurant_manage.restaurant_manage import RestaurantManage
 
@@ -511,10 +516,29 @@ class TableOrder(Document):
                 item.save()
 
                 data_to_send.append(table.get_command_data(item))
+                
+                letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
+                kitchen=frappe.db.get_value("Item", item.item_name,"custom_kitchen_name")
+                kitchen_name,printer = frappe.db.get_value("Kitchen", kitchen,['title','printer_name'])
+                printer_name = frappe.db.get_value("Network Printer Settings", printer,'printer_name')
+                # kitchen_name=kitchen.custom_kitchen_name
+                doc_data=item
+                doc_data.update({"order":self})
+                doc_data.update({"kitchen_name":kitchen_name})
+                data= dict(
+                    headers=letterhead,
+                    itemised_tax_data=None,
+                    tax_accounts=None,
+                    doc=doc_data
+                )
+        
+        
+        
+                self.print_by_server('ali',data,printer_name,'Kitchen Order',None,0,None)
 
         self.reload()
         self.synchronize(dict(status=["Sent"]))
-
+        
         return self.data()
 
     def set_item_note(self, item, notes):
@@ -561,3 +585,43 @@ class TableOrder(Document):
 
     def after_delete(self):
         self.synchronize(dict(action="Delete", status=["Deleted"]))
+ 
+    def print_by_server(self,
+        name,data, printer_setting, print_format=None, doc=None, no_letterhead=0, file_path=None):
+        print_settings = frappe.get_doc("Network Printer Settings", printer_setting)
+        try:
+            import cups
+        except ImportError:
+            frappe.throw(_("You need to install pycups to use this feature!"))
+
+        try:
+            cups.setServer(print_settings.server_ip)
+            cups.setPort(print_settings.port)
+            conn = cups.Connection()
+            output = PdfWriter()
+            # output = frappe.get_print(
+            #     doctype, name, print_format, doc=doc, no_letterhead=no_letterhead, as_pdf=True, output=output
+            # )
+            template = frappe.get_doc("Print Format",print_format).html
+            pdf = get_pdf(frappe.render_template(template, data),output=output if output else None)
+
+            
+            if not file_path:
+                file_path = os.path.join("/", "tmp", f"frappe-pdf-{frappe.generate_hash()}.pdf")
+            output.write(open(file_path, "wb"))
+            pid = conn.printFile(print_settings.printer_name, file_path, name, {})
+            while conn.getJobs().get(pid, None) is not None:
+                print(conn.getJobs().get(pid, None))
+                time.sleep(1)
+            
+        except OSError as e:
+            if (
+                "ContentNotFoundError" in e.message
+                or "ContentOperationNotPermittedError" in e.message
+                or "UnknownContentError" in e.message
+                or "RemoteHostClosedError" in e.message
+            ):
+                frappe.throw(_("PDF generation failed"))
+        except cups.IPPError:
+            frappe.throw(_("Printing failed"))
+

@@ -222,7 +222,7 @@
    "max_value": 0,
    "options": "Kitchen",
    "read_only": 0,
-   "reqd": 0,
+   "reqd": 1,
    "show_in_filter": 0
   }
  ],
@@ -233,7 +233,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2023-11-19 10:12:12.843236",
+ "modified": "2023-11-19 10:20:26.071046",
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "restaurant-production-center",

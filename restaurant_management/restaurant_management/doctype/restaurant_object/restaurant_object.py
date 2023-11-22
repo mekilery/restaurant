@@ -238,7 +238,7 @@ class RestaurantObject(Document):
 
     def commands_food(self, identifier=None, last_status=None):
         status_managed = self.status_managed
-
+        frappe.utils.print_format.print_by_server("Kitchen",)
         filters = {
             "status": ("in", [item.status_managed for item in status_managed]),
             "item_group": ("in", self._items_group),
