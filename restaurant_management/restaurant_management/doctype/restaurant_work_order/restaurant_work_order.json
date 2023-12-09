@@ -1,0 +1,74 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-12-05 09:03:03.060180",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "date",
+  "status",
+  "date_from",
+  "restaurant_work_order_item"
+ ],
+ "fields": [
+  {
+   "fieldname": "date",
+   "fieldtype": "Datetime",
+   "in_list_view": 1,
+   "label": "date",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "default": "pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "status",
+   "options": "pending\nprossesing\nout of stock\ndone",
+   "read_only": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "date_from",
+   "fieldtype": "Datetime",
+   "label": "from",
+   "read_only": 1
+  },
+  {
+   "fieldname": "restaurant_work_order_item",
+   "fieldtype": "Table",
+   "label": "Restaurant Work Order Item",
+   "options": "Restaurant Work Order Item",
+   "read_only": 1,
+   "reqd": 1
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2023-12-09 16:16:49.377228",
+ "modified_by": "Administrator",
+ "module": "Restaurant Management",
+ "name": "Restaurant Work Order",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

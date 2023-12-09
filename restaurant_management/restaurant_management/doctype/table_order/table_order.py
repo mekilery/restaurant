@@ -181,7 +181,11 @@ class TableOrder(Document):
         frappe.msgprint(_('Invoice Created'), indicator='green', alert=True)
 
         self.synchronize(dict(action="Invoiced", status=["Invoiced"]))
-
+#TODO
+        work_order = frappe.new_doc("Restaurant Work Order")
+        work_order.date=invoice.date
+        work_order.pos_invoice=invoice.name
+        work_order.save()
         return dict(
             status=True,
             invoice_name=invoice.name
