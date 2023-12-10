@@ -181,11 +181,11 @@ class TableOrder(Document):
         frappe.msgprint(_('Invoice Created'), indicator='green', alert=True)
 
         self.synchronize(dict(action="Invoiced", status=["Invoiced"]))
-#TODO
-        work_order = frappe.new_doc("Restaurant Work Order")
-        work_order.date=invoice.date
-        work_order.pos_invoice=invoice.name
-        work_order.save()
+# #TODO
+#         work_order = frappe.new_doc("Restaurant Work Order")
+#         work_order.date=invoice.date
+#         work_order.pos_invoice=invoice.name
+#         work_order.save()
         return dict(
             status=True,
             invoice_name=invoice.name
@@ -517,7 +517,7 @@ class TableOrder(Document):
                 item.status = "Sent"
                 item.ordered_time = frappe.utils.now_datetime()
                 item.save()
-                self.print_item_by_kitchen(item)
+               # self.print_item_by_kitchen(item)
         self.reload()
         self.synchronize(dict(status=["Sent"]))
         data_to_send.append(table.get_command_data(item))
@@ -613,13 +613,14 @@ class TableOrder(Document):
             #     time.sleep(1)
             
         except OSError as e:
-            if (
-                "ContentNotFoundError" in e.message
-                or "ContentOperationNotPermittedError" in e.message
-                or "UnknownContentError" in e.message
-                or "RemoteHostClosedError" in e.message
-            ):
-                frappe.throw(_("PDF generation failed"))
+            frappe.throw(_("Printer Error!"))
+            # if (
+            #     "ContentNotFoundError" in e.message
+            #     or "ContentOperationNotPermittedError" in e.message
+            #     or "UnknownContentError" in e.message
+            #     or "RemoteHostClosedError" in e.message
+            # ):
+            #     frappe.throw(_("PDF generation failed"))
         except cups.IPPError:
             frappe.throw(_("Printing failed"))
 

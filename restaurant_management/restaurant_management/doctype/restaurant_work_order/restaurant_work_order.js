@@ -3,11 +3,11 @@
 
 frappe.ui.form.on('Restaurant Work Order', {
 	refresh: function (frm) {
-		if (frm.doc.bom == undefined) {
-			frm.add_custom_button(__('Start Prosess'), function () {
+		if (frm.doc.status != 'aaaa') {
+			frm.add_custom_button(__('Update BOM'), function () {
 
 				frappe.call({
-					method: `restaurant_management.restaurant_management.doctype.restaurant_work_order.restaurant_work_order.create_work_order`,
+					method: `restaurant_management.restaurant_management.doctype.restaurant_work_order.restaurant_work_order.update_bom`,
 					args: {
 						 
 						date: frm.doc.date
@@ -20,9 +20,26 @@ frappe.ui.form.on('Restaurant Work Order', {
 
 			}, __("Actions"));
 		}
+		if (frm.doc.status != 'aaaa') {
+			frm.add_custom_button(__('Start Prosess'), function () {
+
+				frappe.call({
+					method: `restaurant_management.restaurant_management.doctype.restaurant_work_order.restaurant_work_order.prosses_work_order`,
+					args: {
+						 
+						work_order_name: frm.doc.name
+					},
+					callback: function (r) {
+						// frm.set_value("bom", r.message.bom)
+
+					}
+				});
+
+			}, __("Actions"));
+		}
 	},
 	// item: function (frm) {
-	// 	if (frm.doc.date != undefined) {
+	// 	if (frm.doc.datework_order_name != undefined) {
 	// 		frm.set_value("bom", undefined)
 	// 		frappe.call({
 	// 			method: `restaurant_management.restaurant_management.doctype.restaurant_work_order.restaurant_work_order.create_work_order`,
@@ -65,7 +82,7 @@ frappe.ui.form.on('Restaurant Work Order', {
 		}
 
 		frappe.call({
-			method: `restaurant_management.restaurant_management.doctype.restaurant_work_order.restaurant_work_order.create_work_order`,
+			method: `restaurant_management.restaurant_management.doctype.restaurant_work_order.restaurant_work_order.create_invoice_items`,
 			args: {
 				date: frm.doc.date
 			},
@@ -78,7 +95,7 @@ frappe.ui.form.on('Restaurant Work Order', {
                      let item=frm.add_child("restaurant_work_order_item");
                      item.item=e.item_name;
                      item.qty=e.item_qty; 
-					 item.bom=e.item_bom; 
+					 item.bom=e.bom; 
 					 item.status=e.status;
                     //  if(e[2]!=null)
                     //     item.start_time=e[2];
