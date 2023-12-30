@@ -510,6 +510,7 @@ class TableOrder(Document):
         table = self._table
         items_to_return = []
         data_to_send = []
+        new_items=[]
         for i in self.entry_items:
             item = frappe.get_doc("Order Entry Item", {"identifier": i.identifier})
             if item.status == status_attending:
@@ -517,7 +518,9 @@ class TableOrder(Document):
                 item.status = "Sent"
                 item.ordered_time = frappe.utils.now_datetime()
                 item.save()
+                new_items.append(item)
                # self.print_item_by_kitchen(item)
+        self.print_runner_items(new_items)
         self.reload()
         self.synchronize(dict(status=["Sent"]))
         data_to_send.append(table.get_command_data(item))
@@ -567,7 +570,7 @@ class TableOrder(Document):
 
     def after_delete(self):
         self.synchronize(dict(action="Delete", status=["Deleted"]))
-    def print_item_by_kitchen(self,item):
+    def print_item_by_kitchen(self,item,template_name='Kitchen Order'):
         
         letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
         kitchen=frappe.db.get_value("Item", item.item_name,"custom_kitchen_name")
@@ -583,7 +586,26 @@ class TableOrder(Document):
             tax_accounts=None,
             doc=doc_data
         )        
-        self.print_by_server(item,item.name,data,printer_name,'Kitchen Order',None,0,None)
+        self.print_by_server(item,item.item_name,data,printer_name,template_name,None,0,None)
+    def print_runner_items(self,items,template_name='Kitchen Runner'):
+        
+        letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
+        kitchen="Runner"
+        kitchen_name,printer = frappe.db.get_value("Kitchen", {"title":"Runner"},['title','printer_name'])
+        printer_name = frappe.db.get_value("Network Printer Settings", printer,'printer_name')
+        # kitchen_name=kitchen.custom_kitchen_name
+        doc_data={}
+        doc_data.update({"order":self})
+        doc_data.update({"items12":items})
+        doc_data.update({"order":self})
+        doc_data.update({"kitchen_name":kitchen_name})
+        data= dict(
+            headers=letterhead,
+            itemised_tax_data=None,
+            tax_accounts=None,
+            doc=doc_data
+        )        
+        self.print_by_server(items,"Runner",data,printer_name,template_name,None,0,None)
     def print_by_server(self,item,
         name,data, printer_setting, print_format=None, doc=None, no_letterhead=0, file_path=None):
         print_settings = frappe.get_doc("Network Printer Settings", printer_setting)

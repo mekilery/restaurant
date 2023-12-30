@@ -8,14 +8,15 @@ class ProductItem {
         frappe.db.get_value("Item Group", { lft: 1, is_group: 1 }, "name", async (r) => {
             this.parent_item_group = r.name;
             this.make_dom();
-            this.make_fields();
+            let food_groups = await this.get_food_groups();
+            this.make_fields(food_groups);
             this.init_clusterize();
             await this.load_items_data();
         });
     }
 
     make_dom() {
-        
+
         this.wrapper.html(`
 			<table class="layout-table">
 				<tbody>
@@ -43,7 +44,24 @@ class ProductItem {
 		`);
     }
 
-    make_fields() {
+    async get_food_groups() {
+        let self = this
+        return new Promise((resolve, reject) => {
+            frappe.call({
+                freeze: true,
+                method: 'restaurant_management.api.utils.food_group',
+                args: {
+                    pos_profile: RM.pos_profile.name
+                },
+                callback: function (result) {
+                    resolve(result.message)
+                }
+            })
+        })
+
+    }
+
+    make_fields(food_groups) {
         const self = this;
         this.search_field = frappe.ui.form.make_control({
             df: {
@@ -64,36 +82,45 @@ class ProductItem {
             this.last_search = setTimeout(() => {
                 const search_term = e.target.value;
                 const item_group = this.item_group_field ? this.item_group_field.get_value() : '';
-                
+
                 this.filter_items({ search_term: search_term, item_group: item_group });
             }, 300);
         });
-
+        console.log('-----------------', food_groups)
         this.item_group_field = frappe.ui.form.make_control({
             df: {
-                fieldtype: 'Link',
+                fieldtype: 'Select',
                 label: 'Item Group',
-                options: 'Item Group',
+                options: food_groups,
                 default: self.parent_item_group,
                 onchange: () => {
+                    console.log("called")
                     const item_group = this.item_group_field.get_value();
                     if (item_group) {
                         this.filter_items({ item_group: item_group });
                     }
                 },
                 get_query: () => {
-                    return {
+                    console.trace()
+                    // console.log(">>>>>>>>",this.frm.doctype)
+                    console.log("Gahba ------------------")
+                    let select_options = {
                         query: 'erpnext.selling.page.point_of_sale.point_of_sale.item_group_query',
                         filters: {
                             pos_profile: RM.pos_profile.name
                         }
                     };
+
+                    return select_options
                 }
             },
             parent: this.wrapper.find('.item-group-field'),
             render_input: true
         });
     }
+
+
+
 
     init_clusterize() {
         this.clusterize = new Clusterize({
@@ -162,7 +189,7 @@ class ProductItem {
             }
         } else if (item_group === this.parent_item_group) {
             this.items = this.all_items;
-            
+
             return this.render_items(this.all_items);
         }
 
@@ -238,8 +265,8 @@ class ProductItem {
         function template() {
             return `
             <div class="product-img"> ${item_image ?
-                `<img src="${item_image}" alt="${item_title}">` : 
-                `<span class="placeholder-text" style="font-size: 72px; color: #d1d8dd;"> ${frappe.get_abbr(item_title)}</span>`}
+                    `<img src="${item_image}" alt="${item_title}">` :
+                    `<span class="placeholder-text" style="font-size: 72px; color: #d1d8dd;"> ${frappe.get_abbr(item_title)}</span>`}
 				<span class="price-tag">
                     ${price_list_rate}
                 </span>
