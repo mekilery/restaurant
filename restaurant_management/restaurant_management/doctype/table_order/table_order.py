@@ -519,7 +519,7 @@ class TableOrder(Document):
                 item.ordered_time = frappe.utils.now_datetime()
                 item.save()
                 new_items.append(item)
-               # self.print_item_by_kitchen(item)
+                self.print_item_by_kitchen(item)
         self.print_runner_items(new_items)
         self.reload()
         self.synchronize(dict(status=["Sent"]))
@@ -573,8 +573,11 @@ class TableOrder(Document):
     def print_item_by_kitchen(self,item,template_name='Kitchen Order'):
         
         letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
-        kitchen=frappe.db.get_value("Item", item.item_name,"custom_kitchen_name")
-        kitchen_name,printer = frappe.db.get_value("Kitchen", kitchen,['title','printer_name'])
+        kitchen=frappe.db.get_value("Item", item.item_name,"custom_kitchen_name") or "Runner"
+        if kitchen=="Runner":
+            kitchen_name,printer = frappe.db.get_value("Kitchen", {"title":kitchen},['title','printer_name'])
+        else:
+            kitchen_name,printer = frappe.db.get_value("Kitchen", kitchen,['title','printer_name'])
         printer_name = frappe.db.get_value("Network Printer Settings", printer,'printer_name')
         # kitchen_name=kitchen.custom_kitchen_name
         doc_data=item
