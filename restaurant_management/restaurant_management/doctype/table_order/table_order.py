@@ -573,7 +573,7 @@ class TableOrder(Document):
     def print_item_by_kitchen(self,item,template_name='Kitchen Order'):
         
         letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
-        kitchen=frappe.db.get_value("Item", item.item_name,"custom_kitchen_name") or "Runner"
+        kitchen=frappe.db.get_value("Item", item.item_code,"custom_kitchen_name") or "Runner"
         if kitchen=="Runner":
             kitchen_name,printer = frappe.db.get_value("Kitchen", {"title":kitchen},['title','printer_name'])
         else:
@@ -637,15 +637,15 @@ class TableOrder(Document):
             #     print(conn.getJobs().get(pid, None))
             #     time.sleep(1)
             
-        except OSError as e:
-            frappe.throw(_("Printer Error!"))
-            # if (
-            #     "ContentNotFoundError" in e.message
-            #     or "ContentOperationNotPermittedError" in e.message
-            #     or "UnknownContentError" in e.message
-            #     or "RemoteHostClosedError" in e.message
-            # ):
-            #     frappe.throw(_("PDF generation failed"))
-        except cups.IPPError:
-            frappe.throw(_("Printing failed"))
-
+        except Exception as e:  
+            frappe.throw(_(f"Printer Error! {printer_setting}"))
+        #     # if (
+        #     #     "ContentNotFoundError" in e.message
+        #     #     or "ContentOperationNotPermittedError" in e.message
+        #     #     or "UnknownContentError" in e.message
+        #     #     or "RemoteHostClosedError" in e.message
+        #     # ):
+        #     #     frappe.throw(_("PDF generation failed"))
+        # except cups.IPPError:
+        #     frappe.throw(_("Printing failed"))
+      
