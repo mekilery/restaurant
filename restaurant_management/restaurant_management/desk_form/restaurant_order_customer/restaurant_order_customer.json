@@ -35,7 +35,7 @@
  "is_standard": 1,
  "login_required": 1,
  "max_attachment_size": 0,
- "modified": "2023-12-12 16:12:51.894313",
+ "modified": "2024-01-08 14:48:49.297723",
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "restaurant-order-customer",

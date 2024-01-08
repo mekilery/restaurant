@@ -10,7 +10,8 @@ def check_exceptions(model, error_message):
     if frappe.has_permission(model["name"], model["action"]):
         has_permission = True
 
-        if model["data"].owner != frappe.session.user or model["short_name"] == "table":
+      # FJBALI if model["data"].owner != frappe.session.user or model["short_name"] == "table":
+        if  model["short_name"] == "table":
             has_permission = False
 
             exceptions = frappe.get_single("Restaurant Settings")

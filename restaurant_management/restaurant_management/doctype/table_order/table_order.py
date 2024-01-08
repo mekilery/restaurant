@@ -339,10 +339,11 @@ class TableOrder(Document):
                 "You cannot modify an order from another User"
             )
 
+        
+        self.print_deleted_item(item)
         status = frappe.db.get_value("Order Entry Item", {'identifier': item}, "status")
         frappe.db.delete('Order Entry Item', {'identifier': item})
         self.db_commit()
-
         if synchronize and frappe.db.count("Order Entry Item", {"identifier": item}) == 0:
             self.synchronize(dict(action='queue', item_removed=item, status=[status]))
 
@@ -519,7 +520,7 @@ class TableOrder(Document):
                 item.ordered_time = frappe.utils.now_datetime()
                 item.save()
                 new_items.append(item)
-                self.print_item_by_kitchen(item)
+        self.print_item_by_kitchen(new_items)
         self.print_runner_items(new_items)
         self.reload()
         self.synchronize(dict(status=["Sent"]))
@@ -570,8 +571,10 @@ class TableOrder(Document):
 
     def after_delete(self):
         self.synchronize(dict(action="Delete", status=["Deleted"]))
-    def print_item_by_kitchen(self,item,template_name='Kitchen Order'):
-        
+    def print_deleted_item(self,identifier,template_name='Kitchen Deleted Order'):
+        item = frappe.get_doc("Order Entry Item", {"identifier":identifier})
+        if item.status=="Attending":
+            return
         letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
         kitchen=frappe.db.get_value("Item", item.item_code,"custom_kitchen_name") or "Runner"
         if kitchen=="Runner":
@@ -590,6 +593,52 @@ class TableOrder(Document):
             doc=doc_data
         )        
         self.print_by_server(item,item.item_name,data,printer_name,template_name,None,0,None)
+        kitchen="Runner"
+        kitchen_name,printer = frappe.db.get_value("Kitchen", {"title":kitchen},['title','printer_name'])
+        printer_name = frappe.db.get_value("Network Printer Settings", printer,'printer_name')
+        self.print_by_server(item,item.item_name,data,printer_name,template_name,None,0,None)
+
+    def print_item_by_kitchen(self,items,template_nampe='Kitchen Order'):
+        
+        letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
+        grouped_items={}
+        for item in items:
+            category = item.item_group
+            if category in grouped_items:
+                grouped_items[category].append(item)
+            else:
+                grouped_items[category] = [item]
+
+            # kitchen=frappe.db.get_value("Item", item.item_code,"custom_kitchen_name") or "Runner"
+            # if kitchen=="Runner":
+            #     kitchen_name,printer = frappe.db.get_value("Kitchen", {"title":kitchen},['title','printer_name'])
+            # else:
+            #     kitchen_name,printer = frappe.db.get_value("Kitchen", kitchen,['title','printer_name'])
+            # printer_name = frappe.db.get_value("Network Printer Settings", printer,'printer_name')
+                           
+        # kitchen_name=kitchen.custom_kitchen_name
+        
+        for category, items in grouped_items.items():
+            print(f"Category {category}:")
+            kitchen=frappe.db.get_value("Item Group", category,"custom_kitchen_name") or "Runner"
+            if kitchen=="Runner":
+                kitchen_name,printer = frappe.db.get_value("Kitchen", {"title":kitchen},['title','printer_name'])
+            else:
+                kitchen_name,printer = frappe.db.get_value("Kitchen", kitchen,['title','printer_name'])
+                #  for item in items:
+                # print(f" - {item['name']}")
+        
+            doc_data={}
+            doc_data.update({"item_list":items})
+            doc_data.update({"order":self})
+            doc_data.update({"kitchen_name":kitchen_name})
+            data= dict(
+                headers=letterhead,
+                itemised_tax_data=None,
+                tax_accounts=None,
+                doc=doc_data
+            )        
+            self.print_by_server(items,kitchen_name,data,printer_name,template_name,None,0,None)
     def print_runner_items(self,items,template_name='Kitchen Runner'):
         
         letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
@@ -599,8 +648,7 @@ class TableOrder(Document):
         # kitchen_name=kitchen.custom_kitchen_name
         doc_data={}
         doc_data.update({"order":self})
-        doc_data.update({"items12":items})
-        doc_data.update({"order":self})
+        doc_data.update({"items_list":items})
         doc_data.update({"kitchen_name":kitchen_name})
         data= dict(
             headers=letterhead,
