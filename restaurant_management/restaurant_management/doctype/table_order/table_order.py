@@ -598,7 +598,7 @@ class TableOrder(Document):
         printer_name = frappe.db.get_value("Network Printer Settings", printer,'printer_name')
         self.print_by_server(item,item.item_name,data,printer_name,template_name,None,0,None)
 
-    def print_item_by_kitchen(self,items,template_nampe='Kitchen Order'):
+    def print_item_by_kitchen(self,items,template_name='Kitchen Order'):
         
         letterhead=frappe.db.get_value("Letter Head", {"is_default": 1}, ["content", "footer"], as_dict=True) or {}
         grouped_items={}
@@ -628,6 +628,7 @@ class TableOrder(Document):
                 #  for item in items:
                 # print(f" - {item['name']}")
         
+            printer_name = frappe.db.get_value("Network Printer Settings", printer,'printer_name')
             doc_data={}
             doc_data.update({"item_list":items})
             doc_data.update({"order":self})
