@@ -575,7 +575,7 @@ class TableOrder {
             order_manage.print_modal = new DeskModal(props);
         }
     }
-
+   
     set_customer() {
         this.edit("customer");
     }

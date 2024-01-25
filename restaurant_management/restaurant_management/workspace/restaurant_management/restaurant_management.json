@@ -74,7 +74,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Shift",
-   "link_count": 2,
+   "link_count": 3,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -97,9 +97,19 @@
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Table Order",
+   "link_count": 0,
+   "link_to": "Table Order",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
   }
  ],
- "modified": "2024-01-03 16:28:59.916062",
+ "modified": "2024-01-24 19:26:16.754207",
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "Restaurant Management",

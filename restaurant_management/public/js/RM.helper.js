@@ -9,6 +9,7 @@ class RMHelperClass {
             ok: `<span class='fa fa-check' style="padding-right: 5px"></span>`,
             people: `<span class='fa fa-user' style="padding-right: 5px"><span`,
             peoples: `<span class='fa fa-users' style="padding-right: 5px"><span`,
+            discount: `<span class='fa fa-percent' style="padding-right: 5px"><span`
         }
     }
 

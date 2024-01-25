@@ -6,7 +6,7 @@ class OrderManage extends ObjectManage {
 
     constructor(options) {
         super(options);
-
+        this.invoice_name='';
         this.modal = null;
         this.print_modal = null;
         this.current_order = null;
@@ -124,6 +124,7 @@ class OrderManage extends ObjectManage {
 
         this.#components.customer = RMHelper.default_button("Customer", 'people', () => this.update_current_order('customer'));
         this.#components.dinners = RMHelper.default_button("Dinners", 'peoples', () => this.update_current_order('dinners'));
+        //this.#components.print = RMHelper.default_button("Print", 'peoples', () => this.update_current_order('print'));
         this.#components.delete = RMHelper.default_button("Delete", 'trash', () => this.delete_current_order(), DOUBLE_CLICK);
 
         this.modal.title_container.empty().append(
@@ -133,8 +134,11 @@ class OrderManage extends ObjectManage {
         this.modal.buttons_container.prepend(`
 			${this.components.delete.html()}
             ${this.components.customer.html()}
+           
 			${this.components.dinners.html()}
 		`);
+
+
     }
 
     template() {
@@ -192,11 +196,11 @@ class OrderManage extends ObjectManage {
 		</div>`
     }
 
-    toggle_main_section(option="items"){
-        if(option == "items"){
+    toggle_main_section(option = "items") {
+        if (option == "items") {
             this.items_wrapper.show();
             this.invoice_wrapper.hide();
-        }else{
+        } else {
             this.items_wrapper.hide();
             this.invoice_wrapper.show();
         }
@@ -224,8 +228,8 @@ class OrderManage extends ObjectManage {
                 name: "Minus",
                 tag: 'button',
                 properties: {
-                    name: 'minus', 
-                    class: `btn btn-default edit-button ${default_class}` 
+                    name: 'minus',
+                    class: `btn btn-default edit-button ${default_class}`
                 },
                 content: '<span class="fa fa-minus">',
                 on: {
@@ -239,7 +243,7 @@ class OrderManage extends ObjectManage {
             {
                 name: "Qty",
                 tag: 'button', label: 'Qty',
-                properties: { 
+                properties: {
                     name: 'qty', type: 'text', input_type: "number",
                     class: default_class
                 },
@@ -252,7 +256,7 @@ class OrderManage extends ObjectManage {
             {
                 name: "Discount",
                 tag: 'button', label: 'Discount',
-                properties: { 
+                properties: {
                     name: 'discount', type: 'text', input_type: "number",
                     class: default_class,
                 },
@@ -265,8 +269,21 @@ class OrderManage extends ObjectManage {
             {
                 name: "Rate",
                 tag: 'button', label: 'Rate',
-                properties: { 
+                properties: {
                     name: 'rate', type: 'text', input_type: "number",
+                    class: default_class
+                },
+                on: {
+                    'click': (obj) => {
+                        this.num_pad.input = obj;
+                    }
+                }
+            },
+            {
+                name: "TableDiscount",
+                tag: 'button', label: 'Set % ',
+                properties: {
+                    name: 'discount1', type: 'text', input_type: "number",
                     class: default_class
                 },
                 on: {
@@ -295,7 +312,7 @@ class OrderManage extends ObjectManage {
                 name: "Trash",
                 tag: 'button',
                 properties: {
-                    name: 'trash', 
+                    name: 'trash',
                     class: `btn btn-default edit-button ${default_class}`
                 },
                 content: '<span class="fa fa-trash">',
@@ -340,18 +357,21 @@ class OrderManage extends ObjectManage {
 
             base_html += this.objects[element.name].html();
         });
-        
+
         $(container).empty().append(base_html + "</tr></tbody>");
 
         this.#objects.Qty.int();
         this.#objects.Discount.float(2);
+        this.#objects.TableDiscount.float(2);
         this.#objects.Rate.float();
     }
 
     update_detail(input) {
         if (RM.busy) return;
+        //FJBALI const set_data = (item, qty, discount, rate,discount1) => {
+        const set_data = (item, qty, discount, rate, discount1) => {
 
-        const set_data = (item, qty, discount, rate) => {
+
             item.data.qty = qty;
             item.data.discount_percentage = discount;
             item.data.rate = rate;
@@ -360,36 +380,104 @@ class OrderManage extends ObjectManage {
             if (qty > 0) {
                 item.select();
             }
+
+            // console.log('***',this.current_order.items[2])
+            // this.current_order.data.discount=discount1;
+            // items.forEach((item) => {
+            //     if (this.process_manage.items[item].data.identifier === this.data.identifier) {
+            //         delete this.process_manage.items[item];
+            //     }
+            // });
+            // this.current_order.items.forEach((item) => {
+
+            //     console.log('->',item);
+            //     //i.discount_percentage=discount1
+            //  });
+
+
         }
-
-        if (this.current_order != null && this.current_order.current_item != null) {
-            const current_item = this.current_order.current_item;
-            if (!current_item.is_enabled_to_edit) {
-                return;
+        if (input.properties.name === "discount1") {
+            let discount1 = flt(this.objects.TableDiscount.val());
+            this.current_order.data.discount=discount1;
+             
+            if (discount1 != undefined) {
+                var i = 1;
+                Object.keys(this.current_order.items).forEach((index) => {
+                    i += 1;
+                    setTimeout(() => {
+                        let item1 = this.current_order.items[index];
+                        const qty = flt(item1.data.qty);
+                        let discount = flt(discount1);
+                        let rate = flt(item1.data.rate);
+                        const base_rate = flt(item1.data.price_list_rate);
+                        rate = (base_rate * (1 - discount / 100));
+                        set_data(item1, qty, discount, rate);
+                    }, 1 + (i * 500));
+                })
             }
-
-            const qty = flt(this.objects.Qty.val());
-            let discount = flt(this.objects.Discount.val());
-            let rate = flt(this.objects.Rate.val());
-            const base_rate = flt(current_item.data.price_list_rate);
-
-            if (input.properties.name === "qty") {
-                if (input.val() === 0 && current_item.is_enabled_to_delete) {
-                    frappe.msgprint(__("You do not have permissions to delete Items"));
-                    current_item.select();
+        } else {
+            if (this.current_order != null && this.current_order.current_item != null) {
+                const current_item = this.current_order.current_item;
+                if (!current_item.is_enabled_to_edit) {
                     return;
                 }
-                set_data(current_item, qty, discount, rate);
+
+                const qty = flt(this.objects.Qty.val());
+                let discount = flt(this.objects.Discount.val());
+
+                let rate = flt(this.objects.Rate.val());
+                const base_rate = flt(current_item.data.price_list_rate);
+
+                if (input.properties.name === "qty") {
+                    if (input.val() === 0 && current_item.is_enabled_to_delete) {
+                        frappe.msgprint(__("You do not have permissions to delete Items"));
+                        current_item.select();
+                        return;
+                    }
+                    set_data(current_item, qty, discount, rate);
+                }
+                if (input.properties.name === "discount") {
+                    rate = (base_rate * (1 - discount / 100));
+                    set_data(current_item, qty, discount, rate);
+                }
+                if (input.properties.name === "rate") {
+                    const _discount = (((base_rate - rate) / base_rate) * 100);
+                    discount = _discount >= 0 ? _discount : 0
+                    set_data(current_item, qty, discount, rate);
+                }
             }
-            if (input.properties.name === "discount") {
-                rate = (base_rate * (1 - discount / 100));
-                set_data(current_item, qty, discount, rate);
-            }
-            if (input.properties.name === "rate") {
-                const _discount = (((base_rate - rate) / base_rate) * 100);
-                discount = _discount >= 0 ? _discount : 0
-                set_data(current_item, qty, discount, rate);
-            }
+        }
+    }
+
+
+    print_invoice(invoice_name) {
+        if (!RM.can_pay) return;
+
+        const title = invoice_name + " (" + __("Print") + ")";
+        const order_manage = this;
+
+        const props = {
+            model: "POS Invoice",
+            model_name: invoice_name,
+            args: {
+                format: RM.pos_profile.print_format,
+                _lang: RM.lang,
+                no_letterhead: RM.pos_profile.letter_head || 1,
+                letterhead: RM.pos_profile.letter_head || 'No%20Letterhead'
+            },
+            from_server: true,
+            set_buttons: true,
+            is_pdf: true,
+            customize: true,
+            title: title
+        };
+
+        if (order_manage.print_modal) {
+            order_manage.print_modal.set_props(props);
+            order_manage.print_modal.set_title(title);
+            order_manage.print_modal.reload().show();
+        } else {
+            order_manage.print_modal = new DeskModal(props);
         }
     }
 
@@ -456,6 +544,10 @@ class OrderManage extends ObjectManage {
                         name: "Pay",
                         props: { class: "md pay-btn text-lg btn-primary", rowspan: 2 }, action: "pay"
                     },
+                    {
+                        name: "Print",
+                        props: { class: "md pay-btn text-lg btn-primary", rowspan: 2 }, action: "print_invoice"
+                    },
                 ],
                 {
                     style: "height: 10px;"
@@ -487,7 +579,10 @@ class OrderManage extends ObjectManage {
                     content: "{{text}}" + (col.content || ""),
                     text: __(col.name) + (["Tax", "Total"].includes(col.name) ? ": " + RM.format_currency(0) : "")
                 }).on("click", () => {
-                    if (col.action !== "none") {
+                    if(col.action=="print_invoice")
+                    {
+                        setTimeout(this.print_invoice(this.invoice_name), 0);
+                    }else if (col.action !== "none") {
                         if (this.current_order == null) {
                             this.no_order_message();
                             return;
@@ -511,9 +606,9 @@ class OrderManage extends ObjectManage {
             this.num_pad = new NumPad({
                 wrapper: this.components.Pad.obj,
                 on_enter: () => {
-                    if (this.num_pad.input && !this.num_pad.input.is_disabled) {
-                        this.update_detail(this.num_pad.input);
-                    }
+
+                    this.update_detail(this.num_pad.input);
+
                 }
             });
             setTimeout(() => {
@@ -550,28 +645,29 @@ class OrderManage extends ObjectManage {
             if (!["Pad", "Tax", "Total"].includes(k)) {
                 component.disable();
 
-                if (["delete", "edit", "new", "new_order"].includes(k)) {
+                if (["delete", "edit", "new", "new_order", "Print"].includes(k)) {
                     component.hide();
                 }
             }
         });
+
     }
 
     check_buttons_status() {
         if (this.current_order == null) {
             this.disable_components();
-            if (typeof this.#components.new_order_button != "undefined"){
+            if (typeof this.#components.new_order_button != "undefined") {
                 this.#components.new_order_button.enable().show();
             }
-                
+
             return;
         } else {
             if (RM.check_permissions("order", null, "create")) {
-                if (typeof this.#components.new_order_button != "undefined"){
+                if (typeof this.#components.new_order_button != "undefined") {
                     this.#components.new_order_button.enable().show();
                 }
             } else {
-                if (typeof this.#components.new_order_button != "undefined"){
+                if (typeof this.#components.new_order_button != "undefined") {
                     this.#components.new_order_button.disable().hide();
                 }
             }
@@ -581,6 +677,7 @@ class OrderManage extends ObjectManage {
             if (this.current_order.items_count === 0) {
                 if (RM.check_permissions("order", this.current_order, "delete")) {
                     this.#components.delete.enable().show();
+
                 } else {
                     this.#components.delete.disable().hide();
                 }
@@ -602,12 +699,14 @@ class OrderManage extends ObjectManage {
                     )[action]();
                 }
 
-                this.#components.Divide.prop("disabled", this.current_order.items_count === 0);
+
                 this.#components.customer.enable().show();
-                this.#components.dinners.enable().show();
+
+                // this.#components.dinners.enable().show();
                 this.#components.Transfer.enable();
             } else {
                 this.#components.customer.disable().hide();
+                // this.#components.discount.disable().hide();
                 this.#components.dinners.disable().hide();
                 this.#components.Transfer.disable();
                 this.#components.Order.disable();
@@ -615,6 +714,7 @@ class OrderManage extends ObjectManage {
             }
         } else {
             this.disable_components();
+
         }
 
         this.#components.Account.prop(
@@ -633,7 +733,7 @@ class OrderManage extends ObjectManage {
             });
             return;
         }
-        
+
         const pos_profile = RM.pos_profile
         const data = item.data;
         const item_is_enabled_to_edit = item.is_enabled_to_edit;
@@ -642,17 +742,48 @@ class OrderManage extends ObjectManage {
             "disabled", !item_is_enabled_to_edit
         ).val(data.qty, false);
 
-        objects.Discount.prop(
-            "disabled", !item_is_enabled_to_edit || !pos_profile.allow_discount_change
-        ).val(data.discount_percentage, false);
+        objects.Discount.val(data.discount_percentage, false);
 
+        // if (RM.check_permissions("Canceled Items", null, "create")) {
+        //     objects.Discount.prop( "disabled", false)
+        // } else {
+        //     objects.Discount.prop( "disabled", true)
+        // }
+
+        //FJBALI
+        var discount1 = this.current_order.data.discount;
+       
+        if (discount1 == undefined) discount1 = 0;
+
+
+         var hasRole = frappe.user.has_role(['Master Chef']);
+        
+        if (hasRole) {
+            objects.TableDiscount.prop( "disabled", false)
+            objects.Discount.prop( "disabled", false)
+            objects.Trash.prop("disabled", false);
+        }else {
+            objects.TableDiscount.prop( "disabled", true)
+            objects.Discount.prop( "disabled", true)
+            objects.Trash.prop("disabled", true);
+        }
+
+        // if (RM.check_permissions("Canceled Items", null, "create")) {
+        //     objects.TableDiscount.prop( "disabled", false)
+        // } else {
+        //     objects.TableDiscount.prop( "disabled", true)
+        // }
+ 
+        objects.TableDiscount.val(discount1, false);
+
+        //FJBALI 
         objects.Rate.prop(
-            "disabled", !item_is_enabled_to_edit || !pos_profile.allow_rate_change
-        ).val(data.rate, false);
+           "disabled", !item_is_enabled_to_edit || !pos_profile.allow_rate_change
+         ).val(data.rate, false);
 
         objects.Minus.prop("disabled", !item_is_enabled_to_edit);
         objects.Plus.prop("disabled", !item_is_enabled_to_edit);
-        objects.Trash.prop("disabled", !item.is_enabled_to_delete);
+        //FJBALI objects.Trash.prop("disabled", !item.is_enabled_to_delete);
 
         item.check_status();
     }
@@ -670,6 +801,9 @@ class OrderManage extends ObjectManage {
     }
 
     add_order() {
+        this.#components.Print.hide();
+        //    this.#components.Pay.prop("hidden",true);
+        this.#components.Pay.show();
         RM.working("Adding Order");
         frappeHelper.api.call({
             model: "Restaurant Object",
@@ -756,13 +890,13 @@ class OrderManage extends ObjectManage {
         orders.forEach(order => {
             this.append_order(order, current);
         });
-        
-        if (this.#components.new_order_button){
+
+        if (this.#components.new_order_button) {
             this.#components.new_order_button.remove();
         }
 
         const new_order_button = frappe.jshtml({
-            test_field:true,
+            test_field: true,
             tag: "button",
             properties: {
                 class: "btn btn-app btn-lg btn-order",
@@ -774,12 +908,18 @@ class OrderManage extends ObjectManage {
         }, !RM.restrictions.to_new_order ? DOUBLE_CLICK : null);
 
         this.#components.new_order_button = new_order_button;
-        
+
         if (this.#components.new_order_button) {
             $(this.order_container).prepend(new_order_button.html());
         }
-    }
 
+
+    }
+    after_pay(invoice_name) {
+        this.#components.Print.enable().show();
+        //    this.#components.Pay.prop("hidden",true);
+        this.#components.Pay.hide();
+    }
     append_order(order, current = null) {
         return super.append_child({
             child: order,
@@ -840,7 +980,7 @@ class OrderManage extends ObjectManage {
 
     order_status_message() {
         const container = $("#" + this.identifier);
-        
+
         if (this.current_order == null) {
             container.removeClass("has-order");
             container.removeClass("has-items");

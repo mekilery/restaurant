@@ -572,6 +572,7 @@ class TableOrder(Document):
     def after_delete(self):
         self.synchronize(dict(action="Delete", status=["Deleted"]))
     def print_deleted_item(self,identifier,template_name='Kitchen Deleted Order'):
+        usr=frappe.session.user
         item = frappe.get_doc("Order Entry Item", {"identifier":identifier})
         if item.status=="Attending":
             return
@@ -584,6 +585,7 @@ class TableOrder(Document):
         printer_name = frappe.db.get_value("Network Printer Settings", printer,'printer_name')
         # kitchen_name=kitchen.custom_kitchen_name
         doc_data=item
+        doc_data.update({"user":usr})
         doc_data.update({"order":self})
         doc_data.update({"kitchen_name":kitchen_name})
         data= dict(

@@ -137,11 +137,10 @@ class OrderItem {
     calculate() {
         const base_amount = flt(this.data.qty) * flt(this.data.rate);
         this.tax_calculate(base_amount);
-
         this.order.order_manage.objects.Qty.val(this.data.qty);
         this.order.order_manage.objects.Rate.val(this.data.rate);
         this.order.order_manage.objects.Discount.val(this.data.discount_percentage);
-
+        this.order.order_manage.objects.Discount.val(8);
         this.order.aggregate(true);
     }
 
@@ -152,6 +151,7 @@ class OrderItem {
             this.data.qty = qty;
             this.data.discount_percentage = discount;
             this.data.rate = rate;
+            
         }
 
         if (input && ["qty", "rate", "discount_percentage"].includes(input)) {
@@ -344,14 +344,25 @@ class OrderItem {
             Object.entries(fields).forEach(([field_name, field]) => {
                 const enabled = (this.enabled_form_fields_status[this.data.status] || []).includes(field_name);
 
-                this.form_editor.set_field_property(field_name, "read_only", !enabled);
+                //this.form_editor.set_field_property(field_name, "read_only", !enabled);
             });
 
             const pos_profile = RM.pos_profile;
+            this.form_editor.set_field_property("qty", "hidden", true);
+            this.form_editor.set_field_property("item_code", "hidden", true);
+            this.form_editor.set_field_property("rate", "hidden", true);
+            this.form_editor.set_field_property("amount", "hidden", true);
+            this.form_editor.set_field_property("item_tax_rate", "hidden", true);
+            this.form_editor.set_field_property("price_list_rate", "hidden", true);
+            this.form_editor.set_field_property("tax_amount", "hidden", true);
+            this.form_editor.set_field_property("valuation_rate", "hidden", true);
 
             this.form_editor.set_field_property("qty", "read_only", !this.is_enabled_to_edit);
             this.form_editor.set_field_property("discount_percentage", "read_only", !this.is_enabled_to_edit || !pos_profile.allow_discount_change);
             this.form_editor.set_field_property("rate", "read_only", !this.is_enabled_to_edit || !pos_profile.allow_rate_change);
+//FJBALI
+              this.form_editor.set_field_property("discount_amount", "read_only",true);
+             this.form_editor.set_field_property("discount_percentage", "read_only",true);
         }
     }
 

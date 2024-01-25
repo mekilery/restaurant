@@ -213,7 +213,9 @@ class PayForm extends DeskForm {
                     
                     this.hide();
                     this.print(r.message.invoice_name);
+                    order_manage.invoice_name=r.message.invoice_name;
                     order_manage.make_orders();
+                    order_manage.after_pay(r.message.invoice_name);
                 } else {
                     this.reset_payment_button();
                 }
