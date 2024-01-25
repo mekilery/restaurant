@@ -369,13 +369,15 @@ class OrderManage extends ObjectManage {
     update_detail(input) {
         if (RM.busy) return;
         //FJBALI const set_data = (item, qty, discount, rate,discount1) => {
-        const set_data = (item, qty, discount, rate, discount1) => {
+        const set_data = (item, qty, discount, rate, has) => {
 
 
             item.data.qty = qty;
             item.data.discount_percentage = discount;
             item.data.rate = rate;
+            if (item.is_enabled_to_edit) {
             item.data.status = "Pending";
+            }
             item.update();
             if (qty > 0) {
                 item.select();
@@ -418,9 +420,9 @@ class OrderManage extends ObjectManage {
         } else {
             if (this.current_order != null && this.current_order.current_item != null) {
                 const current_item = this.current_order.current_item;
-                if (!current_item.is_enabled_to_edit) {
-                    return;
-                }
+                // if (!current_item.is_enabled_to_edit) {
+                //     return;
+                // }
 
                 const qty = flt(this.objects.Qty.val());
                 let discount = flt(this.objects.Discount.val());
