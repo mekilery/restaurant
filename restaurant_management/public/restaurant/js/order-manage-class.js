@@ -800,10 +800,13 @@ class OrderManage extends ObjectManage {
         console.log('--------------item status',item)
         if (item.data.status == "Attending")
         objects.Trash.prop("disabled", false);
-         else
-         objects.Trash.prop("disabled", true);
+        else
+        {
+         
+            if (!hasRole) objects.Trash.prop("disabled", true);
+    
+        }
     }
-
     make_items() {
         //console.log(["make_items", this.items_wrapper]);
         this.#items = new ProductItem({
