@@ -6,7 +6,7 @@ class OrderManage extends ObjectManage {
 
     constructor(options) {
         super(options);
-        this.invoice_name='';
+        this.invoice_name = '';
         this.modal = null;
         this.print_modal = null;
         this.current_order = null;
@@ -124,7 +124,7 @@ class OrderManage extends ObjectManage {
 
         this.#components.customer = RMHelper.default_button("Customer", 'people', () => this.update_current_order('customer'));
         this.#components.dinners = RMHelper.default_button("Dinners", 'peoples', () => this.update_current_order('dinners'));
-        //this.#components.print = RMHelper.default_button("Print", 'peoples', () => this.update_current_order('print'));
+        this.#components.print = RMHelper.default_button("Print", 'print', () => this.print_invoice(this.invoice_name));
         this.#components.delete = RMHelper.default_button("Delete", 'trash', () => this.delete_current_order(), DOUBLE_CLICK);
 
         this.modal.title_container.empty().append(
@@ -134,7 +134,7 @@ class OrderManage extends ObjectManage {
         this.modal.buttons_container.prepend(`
 			${this.components.delete.html()}
             ${this.components.customer.html()}
-           
+            ${this.components.print.html()}
 			${this.components.dinners.html()}
 		`);
 
@@ -376,7 +376,7 @@ class OrderManage extends ObjectManage {
             item.data.discount_percentage = discount;
             item.data.rate = rate;
             if (item.is_enabled_to_edit) {
-            item.data.status = "Pending";
+                item.data.status = "Pending";
             }
             item.update();
             if (qty > 0) {
@@ -400,8 +400,8 @@ class OrderManage extends ObjectManage {
         }
         if (input.properties.name === "discount1") {
             let discount1 = flt(this.objects.TableDiscount.val());
-            this.current_order.data.discount=discount1;
-             
+            this.current_order.data.discount = discount1;
+
             if (discount1 != undefined) {
                 var i = 1;
                 Object.keys(this.current_order.items).forEach((index) => {
@@ -546,10 +546,10 @@ class OrderManage extends ObjectManage {
                         name: "Pay",
                         props: { class: "md pay-btn text-lg btn-primary", rowspan: 2 }, action: "pay"
                     },
-                    {
-                        name: "Print",
-                        props: { class: "md pay-btn text-lg btn-primary", rowspan: 2 }, action: "print_invoice"
-                    },
+                    // {
+                    //     name: "Print",
+                    //     props: { class: "md pay-btn text-lg btn-primary", rowspan: 2 }, action: "print_invoice"
+                    // },
                 ],
                 {
                     style: "height: 10px;"
@@ -581,10 +581,11 @@ class OrderManage extends ObjectManage {
                     content: "{{text}}" + (col.content || ""),
                     text: __(col.name) + (["Tax", "Total"].includes(col.name) ? ": " + RM.format_currency(0) : "")
                 }).on("click", () => {
-                    if(col.action=="print_invoice")
-                    {
-                        setTimeout(this.print_invoice(this.invoice_name), 0);
-                    }else if (col.action !== "none") {
+                    // if(col.action=="print_invoice")
+                    // {
+                    //     setTimeout(this.print_invoice(this.invoice_name), 0);
+                    // }else 
+                    if (col.action !== "none") {
                         if (this.current_order == null) {
                             this.no_order_message();
                             return;
@@ -657,10 +658,15 @@ class OrderManage extends ObjectManage {
 
     check_buttons_status() {
         if (this.current_order == null) {
+            console.log('--------');
             this.disable_components();
             if (typeof this.#components.new_order_button != "undefined") {
                 this.#components.new_order_button.enable().show();
             }
+            if (this.invoice_name != '')
+                this.#components.print.enable().show();
+            else
+                this.#components.print.disable().hide();
 
             return;
         } else {
@@ -673,6 +679,9 @@ class OrderManage extends ObjectManage {
                     this.#components.new_order_button.disable().hide();
                 }
             }
+            this.#components.print.disable().hide();
+            this.invoice_name = '';
+
         }
 
         if (this.current_order.data.status !== "Invoiced") {
@@ -754,19 +763,19 @@ class OrderManage extends ObjectManage {
 
         //FJBALI
         var discount1 = this.current_order.data.discount;
-       
+
         if (discount1 == undefined) discount1 = 0;
 
 
-         var hasRole = frappe.user.has_role(['Master Chef']);
-        
+        var hasRole = frappe.user.has_role(['Master Chef']);
+
         if (hasRole) {
-            objects.TableDiscount.prop( "disabled", false)
-            objects.Discount.prop( "disabled", false)
+            objects.TableDiscount.prop("disabled", false)
+            objects.Discount.prop("disabled", false)
             objects.Trash.prop("disabled", false);
-        }else {
-            objects.TableDiscount.prop( "disabled", true)
-            objects.Discount.prop( "disabled", true)
+        } else {
+            objects.TableDiscount.prop("disabled", true)
+            objects.Discount.prop("disabled", true)
             objects.Trash.prop("disabled", true);
         }
 
@@ -775,13 +784,13 @@ class OrderManage extends ObjectManage {
         // } else {
         //     objects.TableDiscount.prop( "disabled", true)
         // }
- 
+
         objects.TableDiscount.val(discount1, false);
 
         //FJBALI 
         objects.Rate.prop(
-           "disabled", !item_is_enabled_to_edit || !pos_profile.allow_rate_change
-         ).val(data.rate, false);
+            "disabled", !item_is_enabled_to_edit || !pos_profile.allow_rate_change
+        ).val(data.rate, false);
 
         objects.Minus.prop("disabled", !item_is_enabled_to_edit);
         objects.Plus.prop("disabled", !item_is_enabled_to_edit);
@@ -803,9 +812,9 @@ class OrderManage extends ObjectManage {
     }
 
     add_order() {
-        this.#components.Print.hide();
-        //    this.#components.Pay.prop("hidden",true);
-        this.#components.Pay.show();
+        //FJBALI this.#components.Print.hide();
+        // //    this.#components.Pay.prop("hidden",true);
+        // this.#components.Pay.show();
         RM.working("Adding Order");
         frappeHelper.api.call({
             model: "Restaurant Object",
@@ -918,9 +927,9 @@ class OrderManage extends ObjectManage {
 
     }
     after_pay(invoice_name) {
-        this.#components.Print.enable().show();
+        //FJBALI this.#components.Print.enable().show();
         //    this.#components.Pay.prop("hidden",true);
-        this.#components.Pay.hide();
+        //this.#components.Pay.hide();
     }
     append_order(order, current = null) {
         return super.append_child({

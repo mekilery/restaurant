@@ -207,13 +207,14 @@ class PayForm extends DeskForm {
                 RM.ready();
                 
                 if (r.message && r.message.status) {
+                    order_manage.invoice_name=r.message.invoice_name;
                     order_manage.clear_current_order();
                     order_manage.check_buttons_status();
                     order_manage.check_item_editor_status();
                     
                     this.hide();
                     this.print(r.message.invoice_name);
-                    order_manage.invoice_name=r.message.invoice_name;
+                  
                     order_manage.make_orders();
                     order_manage.after_pay(r.message.invoice_name);
                 } else {
