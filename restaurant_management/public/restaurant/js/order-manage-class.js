@@ -797,6 +797,11 @@ class OrderManage extends ObjectManage {
         //FJBALI objects.Trash.prop("disabled", !item.is_enabled_to_delete);
 
         item.check_status();
+        console.log('--------------item status',item)
+        if (item.data.status == "Attending")
+        objects.Trash.prop("disabled", false);
+         else
+         objects.Trash.prop("disabled", true);
     }
 
     make_items() {
