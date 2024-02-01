@@ -1,7 +1,8 @@
 {
  "charts": [],
- "content": "[{\"id\":\"s5pXpGLdkx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Restaurant Management</span>\",\"col\":12}},{\"id\":\"hRP5CGZTdn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"POS Restaurant\",\"col\":3}},{\"id\":\"XeZ7JpnXpW\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"SGeM1vjaSO\",\"type\":\"card\",\"data\":{\"card_name\":\"Profile\",\"col\":4}},{\"id\":\"TakfKRxIpo\",\"type\":\"card\",\"data\":{\"card_name\":\"Shift\",\"col\":4}},{\"id\":\"f9pyLDHT6e\",\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}}]",
+ "content": "[{\"id\":\"s5pXpGLdkx\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Restaurant Management</span>\",\"col\":12}},{\"id\":\"Mz4mYOGaTk\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"hRP5CGZTdn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"POS Restaurant\",\"col\":4}},{\"id\":\"XeZ7JpnXpW\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"BH90RHlQI-\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"TakfKRxIpo\",\"type\":\"card\",\"data\":{\"card_name\":\"Shift\",\"col\":4}},{\"id\":\"f9pyLDHT6e\",\"type\":\"card\",\"data\":{\"card_name\":\"Settings\",\"col\":4}}]",
  "creation": "2023-04-26 17:15:35.609631",
+ "custom_blocks": [],
  "docstatus": 0,
  "doctype": "Workspace",
  "for_user": "",
@@ -54,7 +55,7 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Profile",
+   "label": "Settings",
    "link_count": 1,
    "onboard": 0,
    "type": "Card Break"
@@ -62,9 +63,9 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "POS Profile",
+   "label": "Settings",
    "link_count": 0,
-   "link_to": "POS Profile",
+   "link_to": "Restaurant Settings",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
@@ -73,7 +74,7 @@
    "hidden": 0,
    "is_query_report": 0,
    "label": "Shift",
-   "link_count": 1,
+   "link_count": 3,
    "onboard": 0,
    "type": "Card Break"
   },
@@ -90,23 +91,25 @@
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Settings",
-   "link_count": 1,
+   "label": "POS Closing Entry",
+   "link_count": 0,
+   "link_to": "POS Closing Entry",
+   "link_type": "DocType",
    "onboard": 0,
-   "type": "Card Break"
+   "type": "Link"
   },
   {
    "hidden": 0,
    "is_query_report": 0,
-   "label": "Settings",
+   "label": "Table Order",
    "link_count": 0,
-   "link_to": "Restaurant Settings",
+   "link_to": "Table Order",
    "link_type": "DocType",
    "onboard": 0,
    "type": "Link"
   }
  ],
- "modified": "2023-04-26 17:26:17.825621",
+ "modified": "2024-01-24 19:26:16.754207",
  "modified_by": "Administrator",
  "module": "Restaurant Management",
  "name": "Restaurant Management",
